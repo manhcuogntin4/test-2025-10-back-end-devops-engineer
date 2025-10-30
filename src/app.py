@@ -65,7 +65,7 @@ def stats_last_18_months():
           to_char(date_trunc('month', a.created_at), 'YYYY-MM') AS month_key,
           COUNT(DISTINCT a.url_id) AS unique_urls
         FROM access_logs a
-        WHERE DATE(a.created_at) >= CURRENT_DATE - INTERVAL '18 months'   -- non sargable
+        WHERE a.created_at >= CURRENT_DATE - INTERVAL '18 months'
         GROUP BY 1
         ORDER BY 1 DESC
     """)
