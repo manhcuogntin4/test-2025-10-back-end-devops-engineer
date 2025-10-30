@@ -7,7 +7,7 @@ class TestRoutes(unittest.TestCase):
     def setUp(self):
         if not hasattr(app, 'extensions') or 'sqlalchemy' not in app.extensions:
             app.config['TESTING'] = True
-            env = 'db' if os.environ.get('DOCKER_CONTAINER') else 'localhost'
+            env = 'fincome-db' if os.environ.get('DOCKER_CONTAINER') else 'localhost'
             app.config['SQLALCHEMY_DATABASE_URI'] = f"postgresql://postgres:password@{env}:5432/mydatabase"
             db.init_app(app)
         self.app_context = app.app_context()
