@@ -1,0 +1,67 @@
+### __1. Choix du Cloud Provider : Amazon Web Services (AWS)__
+
+AWS est un excellent choix pour le déploiement de Kubernetes en raison de sa maturité, de sa vaste gamme de services intégrés, de sa fiabilité et de sa flexibilité. AWS propose __Amazon Elastic Kubernetes Service (EKS)__, un service Kubernetes entièrement géré qui simplifie le déploiement, la gestion et la mise à l'échelle des applications conteneurisées.
+
+__Avantages d'AWS EKS :__
+
+- __Gestion simplifiée :__ AWS gère le plan de contrôle Kubernetes (maîtres), ce qui réduit la charge opérationnelle.
+- __Haute disponibilité :__ Le plan de contrôle EKS est déployé sur plusieurs zones de disponibilité pour une haute résilience.
+- __Intégration profonde :__ S'intègre nativement avec d'autres services AWS comme EC2 (pour les nœuds de travail), VPC (pour la mise en réseau), IAM (pour la gestion des identités et des accès), EBS (pour le stockage persistant), et Elastic Load Balancing (pour l'équilibrage de charge).
+- __Sécurité :__ Utilise IAM pour l'authentification et l'autorisation, et permet l'isolement réseau via VPC.
+- __Scalabilité :__ Facilite la mise à l'échelle automatique des nœuds de travail et des pods.
+
+---
+
+### __2. Déploiement Kubernetes sur AWS EKS__
+
+Le déploiement d'un cluster Kubernetes sur AWS EKS implique plusieurs étapes :
+
+1. __Création du VPC et des Subnets :__
+
+   - Un Virtual Private Cloud (VPC) est nécessaire pour isoler votre réseau.
+   - Des subnets publics et privés sont créés dans différentes zones de disponibilité pour la haute disponibilité. Les nœuds de travail sont généralement placés dans les subnets privés.
+
+2. __Création du Cluster EKS :__
+
+   - Utilisation de la console AWS, de l'AWS CLI, de `eksctl` (un outil CLI simple pour EKS) ou d'outils IaC comme CloudFormation/Terraform.
+   - Spécification de la version de Kubernetes, du rôle IAM pour le plan de contrôle EKS, et des subnets où le plan de contrôle peut opérer.
+
+3. __Configuration des Nœuds de Travail (Worker Nodes) :__
+
+   - Les nœuds de travail sont des instances EC2 qui rejoignent le cluster Kubernetes.
+   - Ils peuvent être déployés via des groupes Auto Scaling gérés par EKS (Managed Node Groups) ou des groupes Auto Scaling auto-gérés.
+   - Les Managed Node Groups sont recommandés car AWS gère les mises à jour et le patching des AMI Kubernetes.
+   - Un rôle IAM est attribué aux nœuds de travail pour leur permettre de communiquer avec le plan de contrôle EKS et d'autres services AWS.
+
+4. __Configuration de `kubectl` :__
+
+   - Après la création du cluster, `kubectl` (l'outil en ligne de commande de Kubernetes) doit être configuré pour interagir avec le cluster EKS.
+   - L'AWS CLI peut générer le fichier de configuration `kubeconfig` nécessaire.
+
+5. __Déploiement d'Applications :__
+
+   - Une fois le cluster opérationnel, vous pouvez déployer vos applications à l'aide de manifestes Kubernetes (Deployment, Service, Ingress, etc.).
+   - __Exemple de `Deployment` :__
+     ```yaml
+     apiVersion: apps/v1
+     kind: Deployment
+     metadata:
+       name: my-app-deployment
+       labels:
+         app: my-app
+     spec:
+       replicas: 3 # Nombre initial de répliques
+       selector:
+         matchLabels:
+           app: my-app
+       template:
+         metadata:
+           labels:
+             app: my-app
+         spec:
+           containers:
+           - name: my-app-container
+             image: my-docker-repo/my-app:latest # Votre image Docker
+             ports:
+             - containerPort: 80
+     ```
